@@ -33,9 +33,22 @@ versions:
       - '1.5-debian9'
       - '1.5.4'
       - '1.5'
-      - 'latest'
     from: *from9
     packages:
         influxdb:
           gpg: *gpg
           version: 1.5.4
+  - dir: '1/debian9/1.6'
+    repo: influxdb1
+    templateSubDir: debian9
+    tags:
+      - '1.6.1-debian9'
+      - '1.6-debian9'
+      - '1.6.1'
+      - '1.6'
+      - 'latest'
+    from: *from9
+    packages:
+        influxdb:
+          gpg: *gpg
+          version: 1.6.1
