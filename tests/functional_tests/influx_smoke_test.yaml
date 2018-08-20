@@ -21,6 +21,7 @@
 # 
 
 setup:
+# Run InfluxDB instance and configure admin accout with the following credentials: login=root, password=root
 - command: [docker, run, --name, some-influxdb-$UNIQUE-id, -e INFLUXDB_HTTP_AUTH_ENABLED=true -e INFLUXDB_ADMIN_USER=root -e INFLUXDB_ADMIN_PASSWORD=root, -d, $IMAGE, influxd]
 - command: [sleep, 15s]
 
@@ -31,14 +32,13 @@ teardown:
 target: some-influxdb-$UNIQUE-id
 tests:
 - name: SHOW_DATABASES
+  # This test tries to connect to a running InfluxDB instance using admin account (login=root, password=root)
+  # end lists all databases created within a default InfluxDB
+  # if everything is correct _internal database should be displayed by this command
   command:
     - sh
     - '-c'
-    - 'influx -version'
-  command:
-    - sh
-    - '-c'
-    - 'influx -username root -password root -execute "show databases"; ls'
+    - 'influx -username root -password root -execute "show databases"'
   expect:
     stdout:
       matches: _internal
