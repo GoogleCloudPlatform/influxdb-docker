@@ -42,13 +42,13 @@ versions:
     repo: influxdb1
     templateSubDir: debian9
     tags:
-      - '1.6.3-debian9'
+      - '1.6.4-debian9'
       - '1.6-debian9'
-      - '1.6.3'
+      - '1.6.4'
       - '1.6'
       - 'latest'
     from: *from9
     packages:
         influxdb:
           gpg: *gpg
-          version: 1.6.3
+          version: 1.6.4
