@@ -1,4 +1,5 @@
-# Copyright (c) 2018 Google LLC.
+#!/bin/bash
+# Copyright 2018 Google Inc.
 #
 # The MIT License (MIT)
 #
@@ -18,50 +19,15 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-_variables:
-  from9: &from9 gcr.io/google-appengine/debian9
-  gpg: &gpg 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62
+set -e
 
-versions:
-  - dir: '1/debian9/1.5'
-    repo: influxdb1
-    templateSubDir: debian9
-    tags:
-      - '1.5.4-debian9'
-      - '1.5-debian9'
-      - '1.5.4'
-      - '1.5'
-    from: *from9
-    packages:
-        influxdb:
-          gpg: *gpg
-          version: 1.5.4
-  - dir: '1/debian9/1.6'
-    repo: influxdb1
-    templateSubDir: debian9
-    tags:
-      - '1.6.4-debian9'
-      - '1.6-debian9'
-      - '1.6.4'
-      - '1.6'
-    from: *from9
-    packages:
-        influxdb:
-          gpg: *gpg
-          version: 1.6.4
-  - dir: '1/debian9/1.7'
-    repo: influxdb1
-    templateSubDir: debian9
-    tags:
-      - '1.7.1-debian9'
-      - '1.7-debian9'
-      - '1.7.1'
-      - '1.7'
-      - 'latest'
-    from: *from9
-    packages:
-        influxdb:
-          gpg: *gpg
-          version: 1.7.1
+if [ "${1:0:1}" = '-' ]; then
+    set -- influxd "$@"
+fi
+
+if [ "$1" = 'influxd' ]; then
+    /init-influxdb.sh "${@:2}"
+fi
+
+exec "$@"
