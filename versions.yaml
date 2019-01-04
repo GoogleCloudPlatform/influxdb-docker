@@ -29,15 +29,15 @@ versions:
     repo: influxdb1
     templateSubDir: debian9
     tags:
-      - '1.5.4-debian9'
+      - '1.5.5-debian9'
       - '1.5-debian9'
-      - '1.5.4'
+      - '1.5.5'
       - '1.5'
     from: *from9
     packages:
         influxdb:
           gpg: *gpg
-          version: 1.5.4
+          version: 1.5.5
   - dir: '1/debian9/1.6'
     repo: influxdb1
     templateSubDir: debian9
