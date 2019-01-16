@@ -46,7 +46,7 @@ RUN set -x \
 	done; \
 	test -n "$found"
 
-ENV INFLUXDB_VERSION 1.6.4
+ENV INFLUXDB_VERSION 1.6.5
 RUN ARCH='amd64' && dpkgArch="$(dpkg --print-architecture)" && \
     case "${dpkgArch##*-}" in \
       amd64) ARCH='amd64';; \
