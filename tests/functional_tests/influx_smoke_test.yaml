@@ -44,3 +44,10 @@ tests:
       matches: _internal
     stderr:
       mustBeEmpty: true
+- name: Prometheus metrics
+  command:
+    - curl
+    - http://localhost:8086/metrics
+  expect:
+    stdout:
+      matches: '(?m)^# HELP go_gc_duration_seconds A summary of the GC invocation durations.$'
