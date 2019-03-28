@@ -18,11 +18,12 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-# 
 
 setup:
-# Run InfluxDB instance and configure admin accout with the following credentials: login=root, password=root
-- command: [docker, run, --name, some-influxdb-$UNIQUE-id, -e INFLUXDB_HTTP_AUTH_ENABLED=true -e INFLUXDB_ADMIN_USER=root -e INFLUXDB_ADMIN_PASSWORD=root, -d, $IMAGE, influxd]
+# Run InfluxDB instance and configure admin account with the following credentials: login=root, password=root.
+- command: [docker, run, --name, some-influxdb-$UNIQUE-id, -e INFLUXDB_HTTP_AUTH_ENABLED=true -e INFLUXDB_ADMIN_USER=root -e INFLUXDB_ADMIN_PASSWORD=root, -d, $IMAGE]
+- command: [docker, exec, some-influxdb-$UNIQUE-id, apt, update]
+- command: [docker, exec, some-influxdb-$UNIQUE-id, apt, install, curl, -y]
 - command: [sleep, 30s]
 
 teardown:
@@ -31,23 +32,30 @@ teardown:
 
 target: some-influxdb-$UNIQUE-id
 tests:
-- name: SHOW_DATABASES
+- name: Can create a database
+  command: [curl, "http://localhost:8086/query?u=root&p=root", --data-urlencode, "q=CREATE DATABASE NOAA_water_database_1"]
+  expect:
+    stdout:
+      equals: '{"results":[{"statement_id":0}]}'
+- name: Can read from a database
+  command: [curl, "http://localhost:8086/query?u=root&p=root", --data-urlencode, "q=SHOW DATABASES"]
+  expect:
+    stdout:
+      matches: 'NOAA_water_database_1'
+- name: Can use influx CLI
   # This test tries to connect to a running InfluxDB instance using admin account (login=root, password=root)
-  # end lists all databases created within a default InfluxDB
-  # if everything is correct _internal database should be displayed by this command
-  command:
-    - sh
-    - '-c'
-    - 'influx -username root -password root -execute "show databases"'
+  # end lists all databases created within a default InfluxDB.
+  # If everything is correct _internal database should be displayed by this command.
+  command: [influx, -username, root, -password, root, -execute, "show databases"]
   expect:
     stdout:
       matches: _internal
     stderr:
       mustBeEmpty: true
-- name: Prometheus metrics
+- name: Is InfluxDB /metrics HTTP endpoint working
   command:
-    - curl
-    - http://localhost:8086/metrics
+  - curl
+  - http://localhost:8086/metrics
   expect:
     stdout:
       matches: '(?m)^# HELP go_gc_duration_seconds A summary of the GC invocation durations.$'
