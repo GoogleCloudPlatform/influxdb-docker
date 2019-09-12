@@ -35,6 +35,8 @@ RUN set -x \
 	&& {{ `gpg --keyserver $server --recv-keys $key` | KeyServersRetryLoop "\t" }}
 
 ENV INFLUXDB_VERSION {{ $influxdb.Version }}
+ENV C2D_RELEASE=${INFLUXDB_VERSION}
+
 RUN ARCH='amd64' && dpkgArch="$(dpkg --print-architecture)" && \
     case "${dpkgArch##*-}" in \
       amd64) ARCH='amd64';; \
