@@ -47,7 +47,7 @@ RUN set -x \
 	test -n "$found"
 
 ENV INFLUXDB_VERSION 1.5.5
-ENV C2D_RELEASE=${INFLUXDB_VERSION}
+ENV C2D_RELEASE 1.5.5
 
 RUN ARCH='amd64' && dpkgArch="$(dpkg --print-architecture)" && \
     case "${dpkgArch##*-}" in \
