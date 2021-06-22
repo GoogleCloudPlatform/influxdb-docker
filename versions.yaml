@@ -64,3 +64,17 @@ versions:
         influxdb:
           gpg: *gpg
           version: 1.7.10
+  - dir: '2/debian9/2.0'
+    repo: influxdb2
+    templateSubDir: debian9
+    tags:
+      - '2.0.7-debian9'
+      - '2.0-debian9'
+      - '2.0.7'
+      - '2.0'
+      - 'latest'
+    from: *from9
+    packages:
+        influxdb:
+          gpg: *gpg
+          version: 2.0.7
