@@ -19,7 +19,9 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM gcr.io/google-appengine/debian9
+FROM {{ .From }}
+
+{{- $influxdb := index .Packages "influxdb" }}
 
 RUN set -x \
         && apt-get update \
@@ -30,24 +32,10 @@ RUN set -x \
                 procps \
         && rm -rf /var/lib/apt/lists/* \
 	&& key=05CE15085FC09D18E99EFB22684A14CF2582E0C5 \
-	&& found='' && \
-	for server in \
-		pool.sks-keyservers.net \
-		na.pool.sks-keyservers.net \
-		eu.pool.sks-keyservers.net \
-		oc.pool.sks-keyservers.net \
-		ha.pool.sks-keyservers.net \
-		hkp://p80.pool.sks-keyservers.net:80 \
-		hkp://keyserver.ubuntu.com:80 \
-		pgp.mit.edu \
-	; do \
-		gpg --keyserver $server --recv-keys $key \
-			&& found=yes && break; \
-	done; \
-	test -n "$found"
+	&& {{ `gpg --keyserver $server --recv-keys $key` | KeyServersRetryLoop "\t" }}
 
-ENV INFLUXDB_VERSION 1.6.6
-ENV C2D_RELEASE 1.6.6
+ENV INFLUXDB_VERSION {{ $influxdb.Version }}
+ENV C2D_RELEASE {{ $influxdb.Version }}
 
 RUN ARCH='amd64' && dpkgArch="$(dpkg --print-architecture)" && \
     case "${dpkgArch##*-}" in \
@@ -57,11 +45,11 @@ RUN ARCH='amd64' && dpkgArch="$(dpkg --print-architecture)" && \
       armel) ARCH='armel';; \
       *)     echo "Unsupported architecture: ${dpkgArch}"; exit 1;; \
     esac && \
-    wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXDB_VERSION}-${ARCH}.deb.asc && \
-    wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXDB_VERSION}-${ARCH}.deb && \
+    wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb.asc && \
+    wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb && \
     wget --no-verbose -O InfluxDB-MIT-LICENSE https://github.com/influxdata/influxdb/raw/master/LICENSE && \
-    gpg --batch --verify influxdb2-${INFLUXDB_VERSION}-${ARCH}.deb.asc influxdb2-${INFLUXDB_VERSION}-${ARCH}.deb && \
-    dpkg -i influxdb2-${INFLUXDB_VERSION}-${ARCH}.deb
+    gpg --batch --verify influxdb_${INFLUXDB_VERSION}_${ARCH}.deb.asc influxdb_${INFLUXDB_VERSION}_${ARCH}.deb && \
+    dpkg -i influxdb_${INFLUXDB_VERSION}_${ARCH}.deb
 
 COPY influxdb.conf /etc/influxdb/influxdb.conf
 

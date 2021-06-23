@@ -57,11 +57,11 @@ RUN ARCH='amd64' && dpkgArch="$(dpkg --print-architecture)" && \
       armel) ARCH='armel';; \
       *)     echo "Unsupported architecture: ${dpkgArch}"; exit 1;; \
     esac && \
-    wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXDB_VERSION}-${ARCH}.deb.asc && \
-    wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXDB_VERSION}-${ARCH}.deb && \
+    wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb.asc && \
+    wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb && \
     wget --no-verbose -O InfluxDB-MIT-LICENSE https://github.com/influxdata/influxdb/raw/master/LICENSE && \
-    gpg --batch --verify influxdb2-${INFLUXDB_VERSION}-${ARCH}.deb.asc influxdb2-${INFLUXDB_VERSION}-${ARCH}.deb && \
-    dpkg -i influxdb2-${INFLUXDB_VERSION}-${ARCH}.deb
+    gpg --batch --verify influxdb_${INFLUXDB_VERSION}_${ARCH}.deb.asc influxdb_${INFLUXDB_VERSION}_${ARCH}.deb && \
+    dpkg -i influxdb_${INFLUXDB_VERSION}_${ARCH}.deb
 
 COPY influxdb.conf /etc/influxdb/influxdb.conf
 
