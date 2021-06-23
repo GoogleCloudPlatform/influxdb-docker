@@ -24,19 +24,6 @@ _variables:
   gpg: &gpg 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62
 
 versions:
-  - dir: '1/debian9/1.5'
-    repo: influxdb1
-    templateSubDir: debian9
-    tags:
-      - '1.5.5-debian9'
-      - '1.5-debian9'
-      - '1.5.5'
-      - '1.5'
-    from: *from9
-    packages:
-        influxdb:
-          gpg: *gpg
-          version: 1.5.5
   - dir: '1/debian9/1.6'
     repo: influxdb1
     templateSubDir: debian9
