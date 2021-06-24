@@ -29,7 +29,7 @@ RUN set -x \
                 wget \
                 procps \
         && rm -rf /var/lib/apt/lists/* \
-	&& key=8C2D403D3C3BDB81A4C27C883C3E4B7317FFE40A \
+	&& key=B42F6819007F00F88E364FD4036A9C25BF357DD4 \
 	&& found='' && \
 	for server in \
 		pool.sks-keyservers.net \
