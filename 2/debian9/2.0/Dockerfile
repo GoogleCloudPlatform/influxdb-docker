@@ -29,7 +29,7 @@ RUN set -x \
                 wget \
                 procps \
         && rm -rf /var/lib/apt/lists/* \
-	&& key=B42F6819007F00F88E364FD4036A9C25BF357DD4 \
+	&& key=8C2D403D3C3BDB81A4C27C883C3E4B7317FFE40A \
 	&& found='' && \
 	for server in \
 		pool.sks-keyservers.net \
@@ -41,7 +41,7 @@ RUN set -x \
 		hkp://keyserver.ubuntu.com:80 \
 		pgp.mit.edu \
 	; do \
-		gpg --keyserver $server --recv-keys $key \
+		gpg --batch --keyserver keys.openpgp.org --recv-keys $key \
 			&& found=yes && break; \
 	done; \
 	test -n "$found"

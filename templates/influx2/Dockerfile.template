@@ -32,7 +32,7 @@ RUN set -x \
                 procps \
         && rm -rf /var/lib/apt/lists/* \
 	&& key={{ $influxdb.Gpg }} \
-	&& {{ `gpg --keyserver $server --recv-keys $key` | KeyServersRetryLoop "\t" }}
+	&& {{ `gpg --batch --keyserver keys.openpgp.org --recv-keys $key` | KeyServersRetryLoop "\t" }}
 
 ENV INFLUXDB_VERSION {{ $influxdb.Version }}
 ENV C2D_RELEASE {{ $influxdb.Version }}
