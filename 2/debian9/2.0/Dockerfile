@@ -21,7 +21,31 @@
 
 FROM gcr.io/google-appengine/debian9
 
-
+RUN set -x \
+        && apt-get update \
+        && apt-get install -y \
+                dirmngr \
+                gnupg \
+                wget \
+                procps \
+        && rm -rf /var/lib/apt/lists/* \
+	&& key=8C2D403D3C3BDB81A4C27C883C3E4B7317FFE40A \
+	&& found='' && \
+	for server in \
+		pool.sks-keyservers.net \
+		na.pool.sks-keyservers.net \
+		eu.pool.sks-keyservers.net \
+		oc.pool.sks-keyservers.net \
+		ha.pool.sks-keyservers.net \
+		hkp://p80.pool.sks-keyservers.net:80 \
+		hkp://keyserver.ubuntu.com:80 \
+		pgp.mit.edu \
+	; do \
+		gpg --keyserver $server --recv-keys $key \
+			&& found=yes && break; \
+	done; \
+	test -n "$found"
+	
 RUN groupadd -r influxdb --gid=1000 && \
     useradd -r -g influxdb --uid=1000 --home-dir=/home/influxdb --shell=/bin/bash influxdb && \
     mkdir -p /home/influxdb && \

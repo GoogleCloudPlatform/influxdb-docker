@@ -23,7 +23,17 @@ FROM {{ .From }}
 
 {{- $influxdb := index .Packages "influxdb" }}
 
-
+RUN set -x \
+        && apt-get update \
+        && apt-get install -y \
+                dirmngr \
+                gnupg \
+                wget \
+                procps \
+        && rm -rf /var/lib/apt/lists/* \
+	&& key={{ $influxdb.Gpg }} \
+	&& {{ `gpg --keyserver $server --recv-keys $key` | KeyServersRetryLoop "\t" }}
+	
 RUN groupadd -r influxdb --gid=1000 && \
     useradd -r -g influxdb --uid=1000 --home-dir=/home/influxdb --shell=/bin/bash influxdb && \
     mkdir -p /home/influxdb && \
