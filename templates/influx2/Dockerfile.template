@@ -72,7 +72,7 @@ VOLUME /var/lib/influxdb2 /etc/influxdb2
 COPY default-config.yml /etc/defaults/influxdb2/config.yml
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["influxd"]
 
 EXPOSE 8086
