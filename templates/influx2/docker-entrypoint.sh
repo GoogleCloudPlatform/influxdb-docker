@@ -175,27 +175,6 @@ function upgrade_influxd () {
     set_config_path
 }
 
-# Ping influxd until it responds or crashes.
-# Used to block execution until the server is ready to process setup requests.
-function wait_for_influxd () {
-    local -r influxd_pid=$1
-    local ping_count=0
-    while kill -0 "${influxd_pid}" && [ ${ping_count} -lt ${INFLUXD_INIT_PING_ATTEMPTS} ]; do
-        sleep 1
-        log info "pinging influxd..." ping_attempt ${ping_count}
-        ping_count=$((ping_count+1))
-        if influx ping &> /dev/null; then
-            log info "got response from influxd, proceeding" total_pings ${ping_count}
-            return
-        fi
-    done
-    if [ ${ping_count} -eq ${INFLUXD_INIT_PING_ATTEMPTS} ]; then
-        log error "influxd took too long to start up" total_pings ${ping_count}
-    else
-        log error "influxd crashed during startup" total_pings ${ping_count}
-    fi
-    exit 1
-}
 
 # Create an initial user/org/bucket in the DB using the influx CLI.
 function setup_influxd () {
