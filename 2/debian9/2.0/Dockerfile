@@ -45,7 +45,11 @@ RUN set -x \
 			&& found=yes && break; \
 	done; \
 	test -n "$found"
-
+	
+RUN groupadd -r influxdb --gid=1000 && \
+    useradd -r -g influxdb --uid=1000 --home-dir=/home/influxdb --shell=/bin/bash influxdb && \
+    mkdir -p /home/influxdb && \
+    chown -R influxdb:influxdb /home/influxdb
 
 ENV INFLUXDB_VERSION 2.0.7
 ENV C2D_RELEASE 2.0.7
