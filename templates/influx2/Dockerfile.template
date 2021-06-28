@@ -51,10 +51,10 @@ RUN ARCH='amd64' && dpkgArch="$(dpkg --print-architecture)" && \
     gpg --batch --verify influxdb2-${INFLUXDB_VERSION}-${ARCH}.deb.asc influxdb2-${INFLUXDB_VERSION}-${ARCH}.deb && \
     dpkg -i influxdb2-${INFLUXDB_VERSION}-${ARCH}.deb
 
-COPY influxdb.conf /etc/influxdb/influxdb.conf
+COPY influxdb.conf /etc/influxdb2/influxdb.conf
 
 RUN set -x \
-    chmod a+r /etc/influxdb/influxdb.conf
+    chmod a+r /etc/influxdb2/influxdb.conf
 
 EXPOSE 8086
 
