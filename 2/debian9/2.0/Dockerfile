@@ -41,31 +41,11 @@ RUN set -x \
 		hkp://keyserver.ubuntu.com:80 \
 		pgp.mit.edu \
 	; do \
-		gpg --keyserver $server --recv-keys $key \
+		gpg --keyserver keys.openpgp.org --recv-keys $key \
 			&& found=yes && break; \
 	done; \
 	test -n "$found"
-	
-RUN groupadd -r influxdb --gid=1000 && \
-    useradd -r -g influxdb --uid=1000 --home-dir=/home/influxdb --shell=/bin/bash influxdb && \
-    mkdir -p /home/influxdb && \
-    chown -R influxdb:influxdb /home/influxdb
 
-# Install gosu for easy step-down from root.
-# https://github.com/tianon/gosu/releases
-ENV GOSU_VER 1.12
-RUN set -eux; \
-	dpkgArch="$(dpkg --print-architecture)" && \
-	wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VER/gosu-$dpkgArch" && \
-	wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VER/gosu-$dpkgArch.asc" && \
-	export GNUPGHOME="$(mktemp -d)" && \
-	gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && \
-	gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu && \
-	gpgconf --kill all && \
-	rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc && \
-	chmod +x /usr/local/bin/gosu && \
-	gosu --version && \
-	gosu nobody true
 
 ENV INFLUXDB_VERSION 2.0.7
 ENV C2D_RELEASE 2.0.7
