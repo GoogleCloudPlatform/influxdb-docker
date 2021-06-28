@@ -1,5 +1,5 @@
-# Copyright (c) 2018 Google LLC.
-#
+# Copyright (c) 2021 Google LLC.
+# 
 # The MIT License (MIT)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -8,10 +8,10 @@
 # use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 # the Software, and to permit persons to whom the Software is furnished to do so,
 # subject to the following conditions:
-#
+# 
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-#
+# 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 # FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -19,35 +19,6 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-_variables:
-  from9: &from9 gcr.io/google-appengine/debian9
-  from10: &from10 gcr.io/google-appengine/debian9
-versions:
-  - dir: '1/debian9/1.7'
-    repo: influxdb1
-    templateSubDir: influx1
-    tags:
-      - '1.7.10-debian9'
-      - '1.7-debian9'
-      - '1.7.10'
-      - '1.7'
-      - 'latest'
-    from: *from9
-    packages:
-        influxdb:
-          gpg: 05CE15085FC09D18E99EFB22684A14CF2582E0C5
-          version: 1.7.10
-  - dir: '2/debian10/2.0'
-    repo: influxdb2
-    templateSubDir: influx2
-    tags:
-      - '2.0.7-debian10'
-      - '2.0-debian10'
-      - '2.0.7'
-      - '2.0'
-      - 'latest'
-    from: *from10
-    packages:
-        influxdb:
-          gpg: 8C2D403D3C3BDB81A4C27C883C3E4B7317FFE40A
-          version: 2.0.7
+bolt-path: /var/lib/influxdb2/influxd.bolt
+engine-path: /var/lib/influxdb2/engine
+nats-port: 4222
