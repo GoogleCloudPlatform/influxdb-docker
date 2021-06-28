@@ -21,7 +21,7 @@
 
 _variables:
   from9: &from9 gcr.io/google-appengine/debian9
-
+  from10: &from10 gcr.io/google-appengine/debian9
 versions:
   - dir: '1/debian9/1.7'
     repo: influxdb1
@@ -46,7 +46,7 @@ versions:
       - '2.0.7'
       - '2.0'
       - 'latest'
-    from: *from9
+    from: *from10
     packages:
         influxdb:
           gpg: 8C2D403D3C3BDB81A4C27C883C3E4B7317FFE40A
