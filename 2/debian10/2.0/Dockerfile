@@ -66,6 +66,7 @@ RUN set -eux; \
 	chmod +x /usr/local/bin/gosu && \
 	gosu --version && \
 	gosu nobody true
+	
 ENV INFLUXDB_VERSION 2.0.7
 ENV C2D_RELEASE 2.0.7
 

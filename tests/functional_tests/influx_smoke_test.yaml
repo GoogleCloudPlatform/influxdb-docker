@@ -21,7 +21,7 @@
 
 setup:
 # Run InfluxDB instance and configure admin account with the following credentials: login=root, password=root.
-- command: [docker, run, --name, some-influxdb-$UNIQUE-id, -e, INFLUXDB_HTTP_AUTH_ENABLED=true, -e, INFLUXDB_ADMIN_USER=root, -e, INFLUXDB_ADMIN_PASSWORD=root, -d, $IMAGE]
+- command: [docker, run, --name, some-influxdb-$UNIQUE-id, -e, INFLUXDB_HTTP_AUTH_ENABLED=false, -e, INFLUXDB_ADMIN_USER=root, -e, INFLUXDB_ADMIN_PASSWORD=root, -d, $IMAGE]
 - command: [docker, exec, some-influxdb-$UNIQUE-id, apt, update]
 - command: [docker, exec, some-influxdb-$UNIQUE-id, apt, install, curl, -y]
 - command: [sleep, 30s]
