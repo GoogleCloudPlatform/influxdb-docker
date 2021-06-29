@@ -27,6 +27,7 @@ RUN set -x \
                 dirmngr \
                 gnupg \
                 wget \
+                curl \
                 procps \
         && rm -rf /var/lib/apt/lists/* \
 	&& key=8C2D403D3C3BDB81A4C27C883C3E4B7317FFE40A \

@@ -29,6 +29,7 @@ RUN set -x \
                 dirmngr \
                 gnupg \
                 wget \
+                curl \
                 procps \
         && rm -rf /var/lib/apt/lists/* \
 	&& key={{ $influxdb.Gpg }} \
