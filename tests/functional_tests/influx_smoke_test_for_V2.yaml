@@ -1,0 +1,54 @@
+# Copyright (c) 2018 Google LLC.
+#
+# The MIT License (MIT)
+#  
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+setup:
+# Run InfluxDB instance and configure admin account with the following credentials: login=root, password=root.
+- command: [docker, run, --name, some-influxdb-$UNIQUE-id, -e, DOCKER_INFLUXDB_INIT_MODE=setup, -e, DOCKER_INFLUXDB_INIT_USERNAME=some-user, -e, DOCKER_INFLUXDB_INIT_PASSWORD=some-password,-e, DOCKER_INFLUXDB_INIT_ORG=some-org, -e, DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=some-token, -e, DOCKER_INFLUXDB_HTTP_AUTH_ENABLED=true, -d, $IMAGE]
+- command: [docker, exec, some-influxdb-$UNIQUE-id, apt, update]
+- command: [docker, exec, some-influxdb-$UNIQUE-id, apt, install, curl, -y]
+- command: [sleep, 30s]
+
+teardown:
+- command: [docker, stop, some-influxdb-$UNIQUE-id]
+- command: [docker, rm, some-influxdb-$UNIQUE-id]
+
+target: some-influxdb-$UNIQUE-id
+tests:
+- name: Can read from a bucket
+  command: [curl, -s, -H, "Authorization: Token some-token", "localhost:8086/api/v2/buckets?name=some-bucket"]
+  expect:
+    stdout:
+      matches: 'some-bucket'
+- name: Can use influx CLI
+  # This test tries to connect to a running InfluxDB instance using admin account (login=root, password=root)
+  # end lists all databases created within a default InfluxDB.
+  # If everything is correct _internal database should be displayed by this command.
+  command: [influx, -execute, "show bucket list"]
+  expect:
+    stdout:
+      matches: some-bucket
+- name: Is InfluxDB /metrics HTTP endpoint working
+  command:
+  - curl
+  - http://localhost:8086/metrics --header "Authorization: Token some-token"
+  expect:
+    stdout:
+      matches: '(?m)^# HELP go_gc_duration_seconds of the pause duration of garbage collection cycles. $'

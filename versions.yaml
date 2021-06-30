@@ -32,6 +32,8 @@ versions:
       - '1.7.10'
       - '1.7'
       - 'latest'
+    excludeTests:
+      - tests/functional_tests/influx_smoke_test_for_V2.yaml
     from: *from9
     packages:
         influxdb:
@@ -51,3 +53,5 @@ versions:
         influxdb:
           gpg: 8C2D403D3C3BDB81A4C27C883C3E4B7317FFE40A
           version: 2.0.7
+    excludeTests:
+      - tests/functional_tests/influx_smoke_test.yaml
