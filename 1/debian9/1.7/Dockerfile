@@ -31,21 +31,7 @@ RUN set -x \
                 procps \
         && rm -rf /var/lib/apt/lists/* \
 	&& key=05CE15085FC09D18E99EFB22684A14CF2582E0C5 \
-	&& found='' && \
-	for server in \
-		pool.sks-keyservers.net \
-		na.pool.sks-keyservers.net \
-		eu.pool.sks-keyservers.net \
-		oc.pool.sks-keyservers.net \
-		ha.pool.sks-keyservers.net \
-		hkp://p80.pool.sks-keyservers.net:80 \
-		hkp://keyserver.ubuntu.com:80 \
-		pgp.mit.edu \
-	; do \
-		gpg --keyserver keys.openpgp.org --recv-keys $key \
-			&& found=yes && break; \
-	done; \
-	test -n "$found"
+	&& gpg --keyserver keys.openpgp.org --recv-keys $key
 	
 RUN groupadd -r influxdb --gid=1000 && \
     useradd -r -g influxdb --uid=1000 --home-dir=/home/influxdb --shell=/bin/bash influxdb && \

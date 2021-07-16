@@ -33,7 +33,7 @@ RUN set -x \
                 procps \
         && rm -rf /var/lib/apt/lists/* \
 	&& key={{ $influxdb.Gpg }} \
-	&& {{ `gpg --keyserver keys.openpgp.org --recv-keys $key` | KeyServersRetryLoop "\t" }}
+	&& {{ `gpg --keyserver keys.openpgp.org --recv-keys $key` }}
 	
 RUN groupadd -r influxdb --gid=1000 && \
     useradd -r -g influxdb --uid=1000 --home-dir=/home/influxdb --shell=/bin/bash influxdb && \
