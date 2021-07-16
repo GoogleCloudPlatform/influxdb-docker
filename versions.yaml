@@ -23,7 +23,7 @@ _variables:
 versions:
   - dir: '1/debian9/1.7'
     repo: influxdb1
-    templateSubDir: influxdb2
+    templateSubDir: influxdb1
     tags:
       - '1.7.10-debian9'
       - '1.7-debian9'
