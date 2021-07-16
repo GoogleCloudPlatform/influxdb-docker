@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Google LLC.
+# Copyright (c) 2021 Google LLC.
 # 
 # The MIT License (MIT)
 #
@@ -19,10 +19,6 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-[meta]
-  dir = "/var/lib/influxdb/meta"
-
-[data]
-  dir = "/var/lib/influxdb/data"
-  engine = "tsm1"
-  wal-dir = "/var/lib/influxdb/wal"
+bolt-path: /var/lib/influxdb2/influxd.bolt
+engine-path: /var/lib/influxdb2/engine
+nats-port: 4222

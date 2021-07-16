@@ -1,4 +1,4 @@
-# Copyright 2018 Google Inc.
+# Copyright 2021 Google Inc.
 #
 # The MIT License (MIT)
 #
@@ -27,6 +27,7 @@ RUN set -x \
                 dirmngr \
                 gnupg \
                 wget \
+                curl \
                 procps \
         && rm -rf /var/lib/apt/lists/* \
 	&& key=05CE15085FC09D18E99EFB22684A14CF2582E0C5 \
@@ -41,38 +42,54 @@ RUN set -x \
 		hkp://keyserver.ubuntu.com:80 \
 		pgp.mit.edu \
 	; do \
-		gpg --keyserver $server --recv-keys $key \
+		gpg --keyserver keys.openpgp.org --recv-keys $key \
 			&& found=yes && break; \
 	done; \
 	test -n "$found"
-
+	
+RUN groupadd -r influxdb --gid=1000 && \
+    useradd -r -g influxdb --uid=1000 --home-dir=/home/influxdb --shell=/bin/bash influxdb && \
+    mkdir -p /home/influxdb && \
+    chown -R influxdb:influxdb /home/influxdb
+    	
 ENV INFLUXDB_VERSION 1.7.10
 ENV C2D_RELEASE 1.7.10
 
-RUN ARCH='amd64' && dpkgArch="$(dpkg --print-architecture)" && \
+RUN set -eux && \
+    ARCH= && dpkgArch="$(dpkg --print-architecture)" && \
     case "${dpkgArch##*-}" in \
-      amd64) ARCH='amd64';; \
-      arm64) ARCH='arm64';; \
-      armhf) ARCH='armhf';; \
-      armel) ARCH='armel';; \
-      *)     echo "Unsupported architecture: ${dpkgArch}"; exit 1;; \
+        amd64) ARCH='amd64';; \
+        arm64) ARCH='arm64';; \
+        *)     echo "Unsupported architecture: ${dpkgArch}"; exit 1;; \
     esac && \
-    wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb.asc && \
-    wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb && \
-    wget --no-verbose -O InfluxDB-MIT-LICENSE https://github.com/influxdata/influxdb/raw/master/LICENSE && \
-    gpg --batch --verify influxdb_${INFLUXDB_VERSION}_${ARCH}.deb.asc influxdb_${INFLUXDB_VERSION}_${ARCH}.deb && \
-    dpkg -i influxdb_${INFLUXDB_VERSION}_${ARCH}.deb
+    wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz.asc && \
+    wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz && \
+    export GNUPGHOME="$(mktemp -d)" && \
+    echo "disable-ipv6" >> $GNUPGHOME/dirmngr.conf && \
+    gpg --batch --keyserver keys.openpgp.org --recv-keys 8C2D403D3C3BDB81A4C27C883C3E4B7317FFE40A && \
+    gpg --batch --verify influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz.asc influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz && \
+    tar xzf influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz && \
+    cp influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}/influx* /usr/local/bin/ && \
+    rm -rf "$GNUPGHOME" influxdb2.key influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}* && \
+    influxd version && \
+    influx version
 
-COPY influxdb.conf /etc/influxdb/influxdb.conf
+# Create standard directories expected by the entry-point.
+RUN mkdir /docker-entrypoint-initdb.d && \
+    mkdir -p /var/lib/influxdb2 && \
+    chown -R influxdb:influxdb /var/lib/influxdb2 && \
+    mkdir -p /etc/influxdb2 && \
+    chown -R influxdb:influxdb /etc/influxdb2
+VOLUME /var/lib/influxdb2 /etc/influxdb2
 
-RUN set -x \
-    chmod a+r /etc/influxdb/influxdb.conf
+COPY default-config.yml /etc/defaults/influxdb2/config.yml
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["influxd"]
 
 EXPOSE 8086
 
-VOLUME /var/lib/influxdb
-
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-COPY init-influxdb.sh /init-influxdb.sh
-ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["influxd"]
+ENV INFLUX_CONFIGS_PATH /etc/influxdb2/influx-configs
+ENV INFLUXD_INIT_PORT 9999
+ENV INFLUXD_INIT_PING_ATTEMPTS 600
