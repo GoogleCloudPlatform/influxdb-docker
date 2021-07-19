@@ -30,8 +30,6 @@ RUN set -x \
                 curl \
                 procps \
         && rm -rf /var/lib/apt/lists/* \
-	&& key=8C2D403D3C3BDB81A4C27C883C3E4B7317FFE40A \
-	&& gpg --keyserver keys.openpgp.org --recv-keys $key
 	
 RUN groupadd -r influxdb --gid=1000 && \
     useradd -r -g influxdb --uid=1000 --home-dir=/home/influxdb --shell=/bin/bash influxdb && \
@@ -52,6 +50,7 @@ RUN set -eux && \
     wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz && \
     export GNUPGHOME="$(mktemp -d)" && \
     echo "disable-ipv6" >> $GNUPGHOME/dirmngr.conf && \
+    gpg --batch --keyserver keys.openpgp.org --recv-keys 8C2D403D3C3BDB81A4C27C883C3E4B7317FFE40A && \
     gpg --batch --verify influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz.asc influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz && \
     tar xzf influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz && \
     cp influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}/influx* /usr/local/bin/ && \
