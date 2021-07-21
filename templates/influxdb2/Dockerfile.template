@@ -53,7 +53,7 @@ RUN set -eux && \
     wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz && \
     export GNUPGHOME="$(mktemp -d)" && \
     echo "disable-ipv6" >> $GNUPGHOME/dirmngr.conf && \
-    gpg --batch --keyserver keys.openpgp.org --recv-keys $key && \
+    gpg --batch --keyserver keys.openpgp.org --recv-keys {{ $influxdb.Gpg }} && \
     gpg --batch --verify influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz.asc influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz && \
     tar xzf influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz && \
     cp influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}/influx* /usr/local/bin/ && \
