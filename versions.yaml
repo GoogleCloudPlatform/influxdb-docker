@@ -40,15 +40,15 @@ versions:
     repo: influxdb2
     templateSubDir: influxdb2
     tags:
-      - '2.0.7-debian10'
+      - '2.0.8-debian10'
       - '2.0-debian10'
-      - '2.0.7'
+      - '2.0.8'
       - '2.0'
       - 'latest'
     from: marketplace.gcr.io/google/debian10
     packages:
         influxdb:
           gpg: 8C2D403D3C3BDB81A4C27C883C3E4B7317FFE40A
-          version: 2.0.7
+          version: 2.0.8
     excludeTests:
       - tests/functional_tests/influx_smoke_test.yaml

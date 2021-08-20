@@ -37,8 +37,8 @@ RUN groupadd -r influxdb --gid=1000 && \
     mkdir -p /home/influxdb && \
     chown -R influxdb:influxdb /home/influxdb
     	
-ENV INFLUXDB_VERSION 2.0.7
-ENV C2D_RELEASE 2.0.7
+ENV INFLUXDB_VERSION 2.0.8
+ENV C2D_RELEASE 2.0.8
 
 RUN set -eux && \
     ARCH= && dpkgArch="$(dpkg --print-architecture)" && \
