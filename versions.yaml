@@ -53,5 +53,5 @@ versions:
   - 1.7-debian9
   - 1.7.11
   - '1.7'
-  templateSubDir: influxdb2
+  templateSubDir: influxdb1
 
