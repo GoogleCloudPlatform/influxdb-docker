@@ -23,6 +23,10 @@ FROM {{ .From }}
 
 {{- $influxdb := index .Packages "influxdb" }}
 
+ENV INFLUXDB_VERSION {{ $influxdb.Version }}
+ENV INFLUXDB_GPG {{ $influxdb.Gpg }}
+ENV C2D_RELEASE {{ $influxdb.Version }}
+
 RUN set -x \
         && apt-get update \
         && apt-get install -y \
@@ -31,11 +35,7 @@ RUN set -x \
                 wget \
                 procps \
         && rm -rf /var/lib/apt/lists/* \
-	&& key={{ $influxdb.Gpg }} \
-	&& {{ `gpg --keyserver $server --recv-keys $key` | KeyServersRetryLoop "\t" }}
-
-ENV INFLUXDB_VERSION {{ $influxdb.Version }}
-ENV C2D_RELEASE {{ $influxdb.Version }}
+        && {{ `gpg --keyserver $server --recv-keys ${INFLUXDB_GPG}` | KeyServersRetryLoop "\t" }}
 
 RUN ARCH='amd64' && dpkgArch="$(dpkg --print-architecture)" && \
     case "${dpkgArch##*-}" in \
