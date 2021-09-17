@@ -21,6 +21,10 @@
 
 FROM marketplace.gcr.io/google/debian9
 
+ENV INFLUXDB_VERSION 1.7.10
+ENV INFLUXDB_GPG C2901040ED25017F50A9D556E2FAD7C38A3B47D2 05CE15085FC09D18E99EFB22684A14CF2582E0C5
+ENV C2D_RELEASE 1.7.10
+
 RUN set -x \
         && apt-get update \
         && apt-get install -y \
@@ -29,8 +33,7 @@ RUN set -x \
                 wget \
                 procps \
         && rm -rf /var/lib/apt/lists/* \
-	&& key=05CE15085FC09D18E99EFB22684A14CF2582E0C5 \
-	&& found='' && \
+        && found='' && \
 	for server in \
 		pool.sks-keyservers.net \
 		na.pool.sks-keyservers.net \
@@ -41,13 +44,10 @@ RUN set -x \
 		hkp://keyserver.ubuntu.com:80 \
 		pgp.mit.edu \
 	; do \
-		gpg --keyserver $server --recv-keys $key \
+		gpg --keyserver $server --recv-keys ${INFLUXDB_GPG} \
 			&& found=yes && break; \
 	done; \
 	test -n "$found"
-
-ENV INFLUXDB_VERSION 1.7.10
-ENV C2D_RELEASE 1.7.10
 
 RUN ARCH='amd64' && dpkgArch="$(dpkg --print-architecture)" && \
     case "${dpkgArch##*-}" in \

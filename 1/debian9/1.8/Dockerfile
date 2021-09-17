@@ -19,13 +19,11 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM {{ .From }}
+FROM marketplace.gcr.io/google/debian9
 
-{{- $influxdb := index .Packages "influxdb" }}
-
-ENV INFLUXDB_VERSION {{ $influxdb.Version }}
-ENV INFLUXDB_GPG {{ $influxdb.Gpg }}
-ENV C2D_RELEASE {{ $influxdb.Version }}
+ENV INFLUXDB_VERSION 1.8.9
+ENV INFLUXDB_GPG C2901040ED25017F50A9D556E2FAD7C38A3B47D2 05CE15085FC09D18E99EFB22684A14CF2582E0C5
+ENV C2D_RELEASE 1.8.9
 
 RUN set -x \
         && apt-get update \
@@ -35,7 +33,21 @@ RUN set -x \
                 wget \
                 procps \
         && rm -rf /var/lib/apt/lists/* \
-        && {{ `gpg --keyserver $server --recv-keys ${INFLUXDB_GPG}` | KeyServersRetryLoop "\t" }}
+        && found='' && \
+	for server in \
+		pool.sks-keyservers.net \
+		na.pool.sks-keyservers.net \
+		eu.pool.sks-keyservers.net \
+		oc.pool.sks-keyservers.net \
+		ha.pool.sks-keyservers.net \
+		hkp://p80.pool.sks-keyservers.net:80 \
+		hkp://keyserver.ubuntu.com:80 \
+		pgp.mit.edu \
+	; do \
+		gpg --keyserver $server --recv-keys ${INFLUXDB_GPG} \
+			&& found=yes && break; \
+	done; \
+	test -n "$found"
 
 RUN ARCH='amd64' && dpkgArch="$(dpkg --print-architecture)" && \
     case "${dpkgArch##*-}" in \

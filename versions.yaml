@@ -1,6 +1,4 @@
-# Copyright (c) 2018 Google LLC.
-#
-# The MIT License (MIT)
+# Copyright 2021 Google LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -19,36 +17,59 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
+cloudbuild:
+  enable_parallel: false
 versions:
-  - dir: '1/debian9/1.7'
-    repo: influxdb1
-    templateSubDir: influxdb1
-    tags:
-      - '1.7.10-debian9'
-      - '1.7-debian9'
-      - '1.7.10'
-      - '1.7'
-      - 'latest'
-    excludeTests:
-      - tests/functional_tests/influx_smoke_test_for_V2_test.yaml
-    from: marketplace.gcr.io/google/debian9
-    packages:
-        influxdb:
-          gpg: 05CE15085FC09D18E99EFB22684A14CF2582E0C5
-          version: 1.7.10
-  - dir: '2/debian10/2.0'
-    repo: influxdb2
-    templateSubDir: influxdb2
-    tags:
-      - '2.0.8-debian10'
-      - '2.0-debian10'
-      - '2.0.8'
-      - '2.0'
-      - 'latest'
-    from: marketplace.gcr.io/google/debian10
-    packages:
-        influxdb:
-          gpg: 8C2D403D3C3BDB81A4C27C883C3E4B7317FFE40A
-          version: 2.0.8
-    excludeTests:
-      - tests/functional_tests/influx_smoke_test.yaml
+- dir: 2/debian10/2.0
+  excludeTests:
+  - tests/functional_tests/influx_smoke_test.yaml
+  from: marketplace.gcr.io/google/debian10
+  packages:
+    influxdb:
+      gpg: C2901040ED25017F50A9D556E2FAD7C38A3B47D2 05CE15085FC09D18E99EFB22684A14CF2582E0C5
+      version: 2.0.8
+  repo: influxdb2
+  tags:
+  - 2.0.8-debian10
+  - 2.0-debian10
+  - 2-debian10
+  - 2.0.8
+  - '2.0'
+  - '2'
+  - latest
+  templateSubDir: influxdb2
+- dir: 1/debian9/1.8
+  excludeTests:
+  - tests/functional_tests/influx_smoke_test_for_V2_test.yaml
+  from: marketplace.gcr.io/google/debian9
+  packages:
+    influxdb:
+      gpg: C2901040ED25017F50A9D556E2FAD7C38A3B47D2 05CE15085FC09D18E99EFB22684A14CF2582E0C5
+      version: 1.8.9
+  repo: influxdb1
+  tags:
+  - 1.8.9-debian9
+  - 1.8-debian9
+  - 1-debian9
+  - 1.8.9
+  - '1.8'
+  - '1'
+  - latest
+  templateSubDir: influxdb1
+- dir: 1/debian9/1.7
+  excludeTests:
+  - tests/functional_tests/influx_smoke_test_for_V2_test.yaml
+  from: marketplace.gcr.io/google/debian9
+  packages:
+    influxdb:
+      gpg: C2901040ED25017F50A9D556E2FAD7C38A3B47D2 05CE15085FC09D18E99EFB22684A14CF2582E0C5
+      version: 1.7.10
+  repo: influxdb1
+  tags:
+  - 1.7.10-debian9
+  - 1.7-debian9
+  - 1.7.10
+  - '1.7'
+  templateSubDir: influxdb1
+
