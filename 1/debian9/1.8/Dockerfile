@@ -21,33 +21,16 @@
 
 FROM marketplace.gcr.io/google/debian9
 
-ENV INFLUXDB_VERSION 1.8.9
-ENV INFLUXDB_GPG C2901040ED25017F50A9D556E2FAD7C38A3B47D2 05CE15085FC09D18E99EFB22684A14CF2582E0C5
-ENV C2D_RELEASE 1.8.9
+ENV INFLUXDB_VERSION 1.8.10
+ENV C2D_RELEASE 1.8.10
 
 RUN set -x \
         && apt-get update \
         && apt-get install -y \
-                dirmngr \
+                curl \
                 gnupg \
                 wget \
-                procps \
-        && rm -rf /var/lib/apt/lists/* \
-        && found='' && \
-	for server in \
-		pool.sks-keyservers.net \
-		na.pool.sks-keyservers.net \
-		eu.pool.sks-keyservers.net \
-		oc.pool.sks-keyservers.net \
-		ha.pool.sks-keyservers.net \
-		hkp://p80.pool.sks-keyservers.net:80 \
-		hkp://keyserver.ubuntu.com:80 \
-		pgp.mit.edu \
-	; do \
-		gpg --keyserver $server --recv-keys ${INFLUXDB_GPG} \
-			&& found=yes && break; \
-	done; \
-	test -n "$found"
+        && rm -rf /var/lib/apt/lists/*
 
 RUN ARCH='amd64' && dpkgArch="$(dpkg --print-architecture)" && \
     case "${dpkgArch##*-}" in \
@@ -57,6 +40,7 @@ RUN ARCH='amd64' && dpkgArch="$(dpkg --print-architecture)" && \
       armel) ARCH='armel';; \
       *)     echo "Unsupported architecture: ${dpkgArch}"; exit 1;; \
     esac && \
+    curl -s https://repos.influxdata.com/influxdb.key | gpg --import && \
     wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb.asc && \
     wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb && \
     wget --no-verbose -O InfluxDB-MIT-LICENSE https://github.com/influxdata/influxdb/raw/master/LICENSE && \

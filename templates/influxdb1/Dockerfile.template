@@ -24,18 +24,15 @@ FROM {{ .From }}
 {{- $influxdb := index .Packages "influxdb" }}
 
 ENV INFLUXDB_VERSION {{ $influxdb.Version }}
-ENV INFLUXDB_GPG {{ $influxdb.Gpg }}
 ENV C2D_RELEASE {{ $influxdb.Version }}
 
 RUN set -x \
         && apt-get update \
         && apt-get install -y \
-                dirmngr \
+                curl \
                 gnupg \
                 wget \
-                procps \
-        && rm -rf /var/lib/apt/lists/* \
-        && {{ `gpg --keyserver $server --recv-keys ${INFLUXDB_GPG}` | KeyServersRetryLoop "\t" }}
+        && rm -rf /var/lib/apt/lists/*
 
 RUN ARCH='amd64' && dpkgArch="$(dpkg --print-architecture)" && \
     case "${dpkgArch##*-}" in \
@@ -45,6 +42,7 @@ RUN ARCH='amd64' && dpkgArch="$(dpkg --print-architecture)" && \
       armel) ARCH='armel';; \
       *)     echo "Unsupported architecture: ${dpkgArch}"; exit 1;; \
     esac && \
+    curl -s https://repos.influxdata.com/influxdb.key | gpg --import && \
     wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb.asc && \
     wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb && \
     wget --no-verbose -O InfluxDB-MIT-LICENSE https://github.com/influxdata/influxdb/raw/master/LICENSE && \
