@@ -55,8 +55,7 @@ RUN set -eux && \
     tar xzf influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz && \
     cp influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}/influx* /usr/local/bin/ && \
     rm -rf "$GNUPGHOME" influxdb2.key influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}* && \
-    influxd version && \
-    influx version
+    influxd
 
 # Create standard directories expected by the entry-point.
 RUN mkdir /docker-entrypoint-initdb.d && \
