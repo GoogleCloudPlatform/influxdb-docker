@@ -41,7 +41,6 @@ versions:
   templateSubDir: influxdb2
 - dir: 1/debian9/1.8
   excludeTests:
-  - tests/functional_tests/influx_smoke_test.yaml
   - tests/functional_tests/influx_smoke_test_for_V2_test.yaml
   from: marketplace.gcr.io/google/debian9
   packages:
