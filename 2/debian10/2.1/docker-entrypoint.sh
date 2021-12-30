@@ -123,7 +123,7 @@ function ensure_init_vars_set () {
 # the DB is already full set up.
 function cleanup_influxd () {
     log warn "cleaning bolt and engine files to prevent conflicts on retry" bolt_path "${BOLT_PATH}" engine_path "${ENGINE_PATH}"
-    rm -rf "${BOLT_PATH}" "${ENGINE_PATH}"
+    rm -rf "${BOLT_PATH}" "${ENGINE_PATH}/"*
 }
 
 # Upgrade V1 data into the V2 format using influxd upgrade.
@@ -205,6 +205,7 @@ function setup_influxd () {
         --password "${DOCKER_INFLUXDB_INIT_PASSWORD}"
         --org "${DOCKER_INFLUXDB_INIT_ORG}"
         --bucket "${DOCKER_INFLUXDB_INIT_BUCKET}"
+        --name "${DOCKER_INFLUXDB_INIT_CLI_CONFIG_NAME}"
     )
     if [ -n "${DOCKER_INFLUXDB_INIT_RETENTION}" ]; then
         setup_args=("${setup_args[@]}" --retention "${DOCKER_INFLUXDB_INIT_RETENTION}")
@@ -319,19 +320,6 @@ function init_influxd () {
     sed -i "s#http://localhost:${INFLUXD_INIT_PORT}#${final_host_scheme}://localhost:${final_port}#g" "${INFLUX_CONFIGS_PATH}"
 }
 
-# Run influxd, with optional setup logic.
-function influxd_main () {
-    if [ -f "${BOLT_PATH}" ]; then
-        log info "found existing boltdb file, skipping setup wrapper" bolt_path "${BOLT_PATH}"
-    elif [ -z "${DOCKER_INFLUXDB_INIT_MODE}" ]; then
-        log warn "boltdb not found at configured path, but DOCKER_INFLUXDB_INIT_MODE not specified, skipping setup wrapper" bolt_path "${bolt_path}"
-    else
-        init_influxd "${@}"
-    fi
-
-    exec influxd "${@}"
-}
-
 # Check if the --help or -h flag is set in a list of CLI args.
 function check_help_flag () {
   for arg in "${@}"; do
@@ -364,7 +352,6 @@ function main () {
         shift 1
     fi
 
-
     if ! check_help_flag "${@}"; then
         # Configure logging for our wrapper.
         set_global_log_level "${@}"
@@ -374,7 +361,25 @@ function main () {
         create_directories
     fi
 
-    influxd_main "${@}"
+    if [ -f "${BOLT_PATH}" ]; then
+        log info "found existing boltdb file, skipping setup wrapper" bolt_path "${BOLT_PATH}"
+    elif [ -z "${DOCKER_INFLUXDB_INIT_MODE}" ]; then
+        log warn "boltdb not found at configured path, but DOCKER_INFLUXDB_INIT_MODE not specified, skipping setup wrapper" bolt_path "${bolt_path}"
+    else
+        init_influxd "${@}"
+        # Set correct permission on volume directories again. This is necessary so that if the container was run as the
+        # root user, the files from the automatic upgrade/initialization will be correctly set when stepping down to the
+        # influxdb user.
+        create_directories
+    fi
+
+    if [ "$(id -u)" = 0 ]; then
+        exec gosu influxdb "$BASH_SOURCE" "${@}"
+        return
+    fi
+
+    # Run influxd.
+    exec influxd "${@}"
 }
 
 main "${@}"
