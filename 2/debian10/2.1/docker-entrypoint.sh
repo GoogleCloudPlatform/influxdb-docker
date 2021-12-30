@@ -373,11 +373,6 @@ function main () {
         create_directories
     fi
 
-    if [ "$(id -u)" = 0 ]; then
-        exec gosu influxdb "$BASH_SOURCE" "${@}"
-        return
-    fi
-
     # Run influxd.
     exec influxd "${@}"
 }
