@@ -21,21 +21,21 @@
 cloudbuild:
   enable_parallel: false
 versions:
-- dir: 2/debian10/2.0
+- dir: 2/debian10/2.1
   excludeTests:
   - tests/functional_tests/influx_smoke_test.yaml
   from: marketplace.gcr.io/google/debian10
   packages:
     influxdb:
       gpg: C2901040ED25017F50A9D556E2FAD7C38A3B47D2 05CE15085FC09D18E99EFB22684A14CF2582E0C5
-      version: 2.0.9
+      version: 2.1.1
   repo: influxdb2
   tags:
-  - 2.0.9-debian10
-  - 2.0-debian10
+  - 2.1.1-debian10
+  - 2.1-debian10
   - 2-debian10
-  - 2.0.9
-  - '2.0'
+  - 2.1.1
+  - '2.1'
   - '2'
   - latest
   templateSubDir: influxdb2
