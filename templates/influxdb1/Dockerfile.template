@@ -32,6 +32,7 @@ RUN set -x \
                 curl \
                 gnupg \
                 wget \
+                openssl \
         && rm -rf /var/lib/apt/lists/*
 
 RUN ARCH='amd64' && dpkgArch="$(dpkg --print-architecture)" && \

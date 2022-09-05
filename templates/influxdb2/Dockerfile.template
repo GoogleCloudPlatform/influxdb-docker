@@ -30,6 +30,7 @@ RUN set -x \
                 gnupg \
                 wget \
                 curl \
+                openssl \
                 procps \
         && rm -rf /var/lib/apt/lists/*
 
