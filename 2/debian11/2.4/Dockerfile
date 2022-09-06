@@ -19,7 +19,7 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM marketplace.gcr.io/google/debian10
+FROM marketplace.gcr.io/google/debian11
 
 RUN set -x \
         && apt-get update \
@@ -28,6 +28,7 @@ RUN set -x \
                 gnupg \
                 wget \
                 curl \
+                openssl \
                 procps \
         && rm -rf /var/lib/apt/lists/*
 

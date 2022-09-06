@@ -19,7 +19,7 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM marketplace.gcr.io/google/debian9
+FROM marketplace.gcr.io/google/debian11
 
 ENV INFLUXDB_VERSION 1.8.10
 ENV C2D_RELEASE 1.8.10
@@ -30,6 +30,7 @@ RUN set -x \
                 curl \
                 gnupg \
                 wget \
+                openssl \
         && rm -rf /var/lib/apt/lists/*
 
 RUN ARCH='amd64' && dpkgArch="$(dpkg --print-architecture)" && \
