@@ -1,0 +1,63 @@
+# Copyright 2018 Google Inc.
+#
+# The MIT License (MIT)
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+FROM marketplace.gcr.io/google/debian9
+
+ENV INFLUXDB_VERSION 1.10.0
+ENV C2D_RELEASE 1.10.0
+
+RUN set -x \
+        && apt-get update \
+        && apt-get install -y \
+                curl \
+                gnupg \
+                wget \
+                openssl \
+        && rm -rf /var/lib/apt/lists/*
+
+RUN ARCH='amd64' && dpkgArch="$(dpkg --print-architecture)" && \
+    case "${dpkgArch##*-}" in \
+      amd64) ARCH='amd64';; \
+      arm64) ARCH='arm64';; \
+      armhf) ARCH='armhf';; \
+      armel) ARCH='armel';; \
+      *)     echo "Unsupported architecture: ${dpkgArch}"; exit 1;; \
+    esac && \
+    curl -s https://repos.influxdata.com/influxdb.key | gpg --import && \
+    wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb.asc && \
+    wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb_${INFLUXDB_VERSION}_${ARCH}.deb && \
+    wget --no-verbose -O InfluxDB-MIT-LICENSE https://github.com/influxdata/influxdb/raw/master/LICENSE && \
+    gpg --batch --verify influxdb_${INFLUXDB_VERSION}_${ARCH}.deb.asc influxdb_${INFLUXDB_VERSION}_${ARCH}.deb && \
+    dpkg -i influxdb_${INFLUXDB_VERSION}_${ARCH}.deb
+
+COPY influxdb.conf /etc/influxdb/influxdb.conf
+
+RUN set -x \
+    chmod a+r /etc/influxdb/influxdb.conf
+
+EXPOSE 8086
+
+VOLUME /var/lib/influxdb
+
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY init-influxdb.sh /init-influxdb.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["influxd"]
