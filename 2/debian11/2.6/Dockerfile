@@ -19,7 +19,7 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM marketplace.gcr.io/google/debian11
+FROM marketplace.gcr.io/google/c2d-debian11
 
 RUN set -x \
         && apt-get update \
@@ -37,9 +37,9 @@ RUN groupadd -r influxdb --gid=1000 && \
     mkdir -p /home/influxdb && \
     chown -R influxdb:influxdb /home/influxdb
 
-ENV INFLUXDB_VERSION 2.4.0
-ENV C2D_RELEASE 2.4.0
-ENV INFLUX_CLI_VERSION 2.4.0
+ENV INFLUXDB_VERSION 2.6.1
+ENV C2D_RELEASE 2.6.1
+ENV INFLUX_CLI_VERSION 2.6.1
 
 RUN set -eux && \
     ARCH= && dpkgArch="$(dpkg --print-architecture)" && \
@@ -52,7 +52,7 @@ RUN set -eux && \
     wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz && \
     export GNUPGHOME="$(mktemp -d)" && \
     echo "disable-ipv6" >> $GNUPGHOME/dirmngr.conf && \
-    gpg --batch --keyserver keys.openpgp.org --recv-keys C2901040ED25017F50A9D556E2FAD7C38A3B47D2 05CE15085FC09D18E99EFB22684A14CF2582E0C5 && \
+    curl -s https://repos.influxdata.com/influxdata-archive_compat.key | gpg --import && \
     gpg --batch --verify influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz.asc influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz && \
     tar xzf influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz && \
     cp influxdb2_linux_${ARCH}/influx* /usr/local/bin/ && \
@@ -71,8 +71,6 @@ RUN set -eux && \
     wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb2-client-${INFLUX_CLI_VERSION}-linux-${ARCH}.tar.gz && \
     export GNUPGHOME="$(mktemp -d)" && \
     echo "disable-ipv6" >> $GNUPGHOME/dirmngr.conf && \
-    gpg --batch --keyserver keys.openpgp.org --recv-keys 8C2D403D3C3BDB81A4C27C883C3E4B7317FFE40A && \
-    gpg --batch --verify influxdb2-client-${INFLUX_CLI_VERSION}-linux-${ARCH}.tar.gz.asc influxdb2-client-${INFLUX_CLI_VERSION}-linux-${ARCH}.tar.gz && \
     tar xzf influxdb2-client-${INFLUX_CLI_VERSION}-linux-${ARCH}.tar.gz && \
     cp influxdb2-client-${INFLUX_CLI_VERSION}-linux-${ARCH}/influx /usr/local/bin/influx && \
     rm -rf "$GNUPGHOME" influxdb2.key influxdb2-client-${INFLUX_CLI_VERSION}-linux-${ARCH}* && \
