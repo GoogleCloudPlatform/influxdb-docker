@@ -22,6 +22,8 @@
 FROM {{ .From }}
 
 {{- $influxdb := index .Packages "influxdb" }}
+{{- $influxdb_cli := index .Packages "influxdb_cli" }}
+
 
 RUN set -x \
         && apt-get update \
@@ -43,39 +45,46 @@ ENV INFLUXDB_VERSION {{ $influxdb.Version }}
 ENV C2D_RELEASE {{ $influxdb.Version }}
 ENV INFLUX_CLI_VERSION {{ $influxdb.Version }}
 
-RUN set -eux && \
-    ARCH= && dpkgArch="$(dpkg --print-architecture)" && \
-    case "${dpkgArch##*-}" in \
-        amd64) ARCH='amd64';; \
-        arm64) ARCH='arm64';; \
-        *)     echo "Unsupported architecture: ${dpkgArch}"; exit 1;; \
+RUN case "$(dpkg --print-architecture)" in \
+      *amd64) arch=amd64 ;; \
+      *arm64) arch=arm64 ;; \
+      *) echo 'Unsupported architecture' && exit 1 ;; \
     esac && \
-    wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz.asc && \
-    wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz && \
     export GNUPGHOME="$(mktemp -d)" && \
-    echo "disable-ipv6" >> $GNUPGHOME/dirmngr.conf && \
-    curl -s https://repos.influxdata.com/influxdata-archive_compat.key | gpg --import && \
-    gpg --batch --verify influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz.asc influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz && \
-    tar xzf influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}.tar.gz && \
-    cp influxdb2_linux_${ARCH}/influx* /usr/local/bin/ && \
-    rm -rf "$GNUPGHOME" influxdb2.key influxdb2-${INFLUXDB_VERSION}-linux-${ARCH}* && \
+    gpg --batch --keyserver keyserver.ubuntu.com --recv-keys \
+      # InfluxData Package Signing Key <support@influxdata.com>
+      9D539D90D3328DC7D6C8D3B9D8FF8E1F7DF8B07E && \
+    curl -fLO "https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXDB_VERSION}_linux_${arch}.tar.gz" \
+         -fLO "https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXDB_VERSION}_linux_${arch}.tar.gz.asc" && \
+    gpg --batch --verify "influxdb2-${INFLUXDB_VERSION}_linux_${arch}.tar.gz.asc" \
+                         "influxdb2-${INFLUXDB_VERSION}_linux_${arch}.tar.gz" && \
+    tar xzf "influxdb2-${INFLUXDB_VERSION}_linux_${arch}.tar.gz" && \
+    cp "influxdb2-${INFLUXDB_VERSION}/usr/bin/influxd" /usr/local/bin/influxd && \
+    rm -rf "influxdb2-${INFLUXDB_VERSION}_linux_${arch}.tar.gz" \
+           "influxdb2-${INFLUXDB_VERSION}_linux_${arch}.tar.gz.asc" \
+           "influxdb2_linux_${arch}" && \
     influxd version
 
 # Install the influx CLI
-RUN set -eux && \
-    ARCH= && dpkgArch="$(dpkg --print-architecture)" && \
-    case "${dpkgArch##*-}" in \
-        amd64) ARCH='amd64';; \
-        arm64) ARCH='arm64';; \
-        *)     echo "Unsupported architecture: ${dpkgArch}"; exit 1;; \
+ENV INFLUX_CLI_VERSION {{ $influxdb_cli.Version }}
+RUN case "$(dpkg --print-architecture)" in \
+      *amd64) arch=amd64 ;; \
+      *arm64) arch=arm64 ;; \
+      *) echo 'Unsupported architecture' && exit 1 ;; \
     esac && \
-    wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb2-client-${INFLUX_CLI_VERSION}-linux-${ARCH}.tar.gz.asc && \
-    wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb2-client-${INFLUX_CLI_VERSION}-linux-${ARCH}.tar.gz && \
     export GNUPGHOME="$(mktemp -d)" && \
-    echo "disable-ipv6" >> $GNUPGHOME/dirmngr.conf && \
-    tar xzf influxdb2-client-${INFLUX_CLI_VERSION}-linux-${ARCH}.tar.gz && \
+    gpg --batch --keyserver keyserver.ubuntu.com --recv-keys \
+      # InfluxData Package Signing Key <support@influxdata.com>
+      9D539D90D3328DC7D6C8D3B9D8FF8E1F7DF8B07E && \
+    curl -fLO "https://dl.influxdata.com/influxdb/releases/influxdb2-client-${INFLUX_CLI_VERSION}-linux-${arch}.tar.gz" \
+         -fLO "https://dl.influxdata.com/influxdb/releases/influxdb2-client-${INFLUX_CLI_VERSION}-linux-${arch}.tar.gz.asc" && \
+    gpg --batch --verify "influxdb2-client-${INFLUX_CLI_VERSION}-linux-${arch}.tar.gz.asc" \
+                         "influxdb2-client-${INFLUX_CLI_VERSION}-linux-${arch}.tar.gz" && \
+    tar xzf "influxdb2-client-${INFLUX_CLI_VERSION}-linux-${arch}.tar.gz" && \
     cp influx /usr/local/bin/influx && \
-    rm -rf "$GNUPGHOME" influxdb2.key influxdb2-client-${INFLUX_CLI_VERSION}-linux-${ARCH}* && \
+    rm -rf "influxdb2-client-${INFLUX_CLI_VERSION}-linux-${arch}" \
+           "influxdb2-client-${INFLUX_CLI_VERSION}-linux-${arch}.tar.gz" \
+           "influxdb2-client-${INFLUX_CLI_VERSION}-linux-${arch}.tar.gz.asc" && \
     influx version
 
 # Create standard directories expected by the entry-point.
