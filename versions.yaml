@@ -19,6 +19,7 @@
 
 
 cloudbuild:
+  docker_image: gcr.io/cloud-builders/docker:24.0.9
   enable_parallel: false
 versions:
 - dir: 2/debian12/2.7
@@ -30,6 +31,9 @@ versions:
     influxdb_cli:
       version: 2.7.5
   repo: influxdb2
+  annotations:
+  - key: com.googleapis.cloudmarketplace.product.service.name
+    value: services/1ba71019-45d5-45af-b15f-3d87d301321a.cloudpartnerservices.goog
   tags:
   - 2.7.10-debian12
   - 2.7-debian12
